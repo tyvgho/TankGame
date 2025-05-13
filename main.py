@@ -4,15 +4,16 @@ import time
 import pygame
 from math import cos, sin, pi
 from typing import List, Tuple, Dict
+from utilitaire import *
 
 FPS = 60
 DPF = 1/FPS
-TAILLE_ECRAN = (1000,600)
+TAILLE_ECRAN = (1280,720)
 TIME_UNTIL_FPS_AVERAGE = 1.0
 TANK_MAX_SPEED = 5
 TANK_ACCELERATION = 20.0
 TANK_FRICTION = 10.0
-TANK_SIZE = 50
+TANK_SIZE = 30
 TANK_VITESSE_ROTATION = 135 # en degrée par seconde
 TAILLE_PETIT_CANON = pi/8
 TAILLE_GRAND_CANON = pi/6
@@ -35,32 +36,6 @@ chrono_loop = "chrono_loop"
 
 Coord = List[float]
 Tank = Dict
-
-def millis_to_second(millis) -> float:
-    return millis*(10**-3)
-
-def second_to_millis(second) -> int:
-    return int(second*(10**3))
-
-def addition_tuple(tuple1, tuple2) -> Tuple[float, float]:
-    return tuple1[0] + tuple2[0], tuple1[1] + tuple2[1]
-
-def soustraction_tuple(tuple1, tuple2) -> Tuple[float, float]:
-    return tuple1[0] - tuple2[0], tuple1[1] - tuple2[1]
-
-def multiplication_tuple(tuple, x : float):
-    return tuple.__class__([i*x for i in tuple])
-
-def clamp(val, min_val, max_val):
-    return min(max(val, min_val), max_val)
-
-def sign(x : int) -> int:
-    if x > 0:
-        return 1
-    elif x < 0:
-        return -1
-    else:
-        return 0
     
 def draw_tank(tank_q : Tank):
     tank = tank_q["coord"]
@@ -189,48 +164,16 @@ def step(tank1 : Tank, delta_time, terrain):
     if not collision:
         tank1["coord"] = [next_x,next_y]
     else:
-        direction_x = sign(next_x - tank1["coord"][0])
-        for dx in range(int(tank1["coord"][0]), int(next_x), direction_x):
-            if detection_collision(dx, tank1["coord"][1],terrain):
-                dx -= direction_x
-                tank1["coord"][0] = dx
-                break
-
-        direction_y = sign(next_y - tank1["coord"][1])
-        for dy in range(int(tank1["coord"][1]), int(next_y), direction_y):
-            if detection_collision(tank1["coord"][0],dy,terrain):
-                dy -= direction_y 
-                tank1["coord"][1] = dy
-                break
+        delta_x = next_x - tank1["coord"][0]
+        delta_y = next_y - tank1["coord"][1]        
+        
+        if not detection_collision(tank1["coord"][0] + delta_x, tank1["coord"][1], terrain):
+            tank1["coord"][0] += delta_x
+        elif not detection_collision(tank1["coord"][0], tank1["coord"][1] + delta_y, terrain):
+            tank1["coord"][1] += delta_y
             
 
     tank1["rotation"] += (int(touches["gauche"]) - int(touches["droite"])) * (delta_time * (2*pi/360*TANK_VITESSE_ROTATION))
-
-def moyenne_array(array):
-    return sum(array)/len(array)
-
-def min_array(array):
-    mini = array[0]
-    for i in range(1,len(array)):
-        mini = min(mini, array[i])
-    return mini
-
-def frame_handling(act_time,TUFA_last_refresh,delta_time,last_chronos_time,frames,frame_array,displayed_frame_array):
-    if act_time - TUFA_last_refresh > TIME_UNTIL_FPS_AVERAGE:
-        displayed_frame_array = frame_array.copy()
-        TUFA_last_refresh = act_time
-        frame_array.clear()
-    time_to_wait = max(DPF - (time.time() - last_chronos_time), 0)
-    time.sleep(time_to_wait)
-    delta_time = time.time() - last_chronos_time
-    last_chronos_time = time.time()
-    if len(frame_array) >= FPS:
-        frame_array.pop(0)
-    frame_array.append(1 / delta_time)
-
-    affiche_tout()
-
-    return (act_time,TUFA_last_refresh,delta_time,last_chronos_time,frames,frame_array,displayed_frame_array)
 
 def tire_misile(joueur_a,joueur_b,misiles,terain):
     global can_fier

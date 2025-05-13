@@ -1,97 +1,77 @@
-from graphics import*
-remplir_fenetre(blanc)
-        point_a = (282,351)
-        point_b = (680,402)
-        point_c = (282,251)
-        point_d = (680,302)
-        affiche_rectangle(point_a,point_b,bleu,5)
-        affiche_texte(f"jeu",(450,250),noir,40)
-        affiche_rectangle(point_c,point_d,rouge,5)
-        affiche_texte(f"modifier le jeu",(300,350),noir,40)
-        affiche_tout()
-def creer_bontou():
-    bouton = {texte:"",coordoner:}
+from graphics import *
+from typing import Dict, Tuple, List
+from utilitaire import *
 
-def afficher_bouton(clic,bouton):
+Coordonnee = Tuple[int, int]
+Couleur = Tuple[int, int, int, int]
+Bouton = Dict
 
-def dans_bouton()
+bouton_par_defaut : Bouton = {
+    "position" : (0,0),
+    "taille" : (0,0),
+    "texte" : "Jouer",
+    "couleur" : (0,0,0),
+    "couleur_selectionnee" : (0,0,0),
+    "texte_selectionne" : "Jouer",
+    "survolee" : False,
+    "fonction" : None
+}
 
-def afficher_lobby():
-bouton_modifier_le_terrain = creer_bontou()
+def afficher_bouton(bouton : Bouton):
+    couleur = bouton["couleur"]
+    texte = bouton["texte"]
+    if bouton["survolee"]:
+        couleur = bouton["couleur_selectionnee"]
+        texte = bouton["texte_selectionne"]
+        
+    affiche_rectangle(bouton["position"], addition_tuple(bouton["position"], bouton["taille"]), couleur)
+    affiche_texte_centre(texte, addition_tuple(bouton["position"],multiplication_tuple(bouton["taille"],0.5)), couleur, bouton["taille"][1]-10)
 
+def comportement_bouton(clic : Coordonnee, clique : bool, boutons : List[Bouton]):
+    cx, cy = clic
+    for bouton in boutons:
+        bx, by = bouton["position"]
+        tx, ty = addition_tuple(bouton["position"], bouton["taille"])
+        if cx >= bx and cx <= tx and cy >= by and cy <= ty:
+            if clique:
+                bouton["fonction"]()
+            else:
+                bouton["survolee"] = True
+        else:
+            bouton["survolee"] = False
+        afficher_bouton(bouton)
 
-def lancer_lobby():
-    init_fenetre(1000,600,"tanck la revanche")
+def main():
     affiche_auto_off()
-    bouton_modifier_le_terrain = creer_bouton()
-    bouton_lancee_le_jeu )= creer_bontou()
+    init_fenetre(500, 400, "Affichage du mur")
+
+    bouton = bouton_par_defaut.copy()
+    bouton["position"] = (100,100)
+    bouton["taille"] = (200,50)
+    bouton["texte"] = "Jouer"
+    bouton["couleur"] = (255,0,0)
+    bouton["couleur_selectionnee"] = (0,255,0)
+    bouton["texte_selectionne"] = "Jouer !"
+    
+    bouton["fonction"] = lambda: print("Salut !")
+
+    delta_time : float = 0.01
+    last_chronos_time = 0
+    frames : int = 0
+    act_time = 0
+    frame_array = [0]
+    displayed_frame_array = [0]
+    TUFA_last_refresh = 0
+    clic = (0,0)
+
     while pas_echap():
-        clic = wait_clic()
-        if dans_bouton :
 
+        remplir_fenetre(blanc)
+        act_time = time.time()
+        clic = obtenir_position_curseur()
+        comportement_bouton(clic, souris_cliquee(), [bouton])
 
+        (act_time,TUFA_last_refresh,delta_time,last_chronos_time,frames,frame_array,displayed_frame_array) = frame_handling(act_time,TUFA_last_refresh,delta_time,last_chronos_time,frames,frame_array,displayed_frame_array)
 
 
-
-
-affiche_lobby()
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+main()

@@ -408,6 +408,21 @@ def last_clic():
 __arrow=(0,0)
 __is_clic=False
 __last_clic=None
+
+
+def obtenir_position_curseur():
+    pos = pygame.mouse.get_pos()
+    pos = (pos[0],__H - pos[1])
+    return pos
+
+def souris_cliquee() -> bool:
+    global __is_clic
+    __update_event()
+    if __is_clic:
+        __is_clic=False
+        return True
+    return False
+
 def __update_event():
     global __arrow,__is_clic,__last_clic
     for event in pygame.event.get():
