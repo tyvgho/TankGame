@@ -1,6 +1,8 @@
 from graphics import *
 from typing import Dict, Tuple, List
+import gestion_terrain
 from utilitaire import *
+import main as main_tank
 
 Coordonnee = Tuple[int, int]
 Couleur = Tuple[int, int, int, int]
@@ -52,8 +54,29 @@ def main():
     bouton["couleur"] = (255,0,0)
     bouton["couleur_selectionnee"] = (0,255,0)
     bouton["texte_selectionne"] = "Jouer !"
+    bouton["fonction"] = main_tank.main
     
-    bouton["fonction"] = lambda: print("Salut !")
+    bouton2 = bouton_par_defaut.copy()
+    bouton2["position"] = (100,300)
+    bouton2["taille"] = (200,50)
+    bouton2["texte"] = "Quitter"
+    bouton2["couleur"] = (255,0,0)
+    bouton2["couleur_selectionnee"] = (0,255,0)
+    bouton2["texte_selectionne"] = "Jouer !"
+    
+    bouton2["fonction"] = lambda: exit()
+
+    bouton3 = bouton_par_defaut.copy()
+    bouton3["position"] = (100,200)
+    bouton3["taille"] = (200,50)
+    bouton3["texte"] = "Modifier"
+    bouton3["couleur"] = (255,0,0)
+    bouton3["couleur_selectionnee"] = (0,255,0)
+    bouton3["texte_selectionne"] = "Editeur"
+    
+    bouton3["fonction"] = gestion_terrain.edyte_terain
+    print(bouton["fonction"])
+
 
     delta_time : float = 0.01
     last_chronos_time = 0
@@ -69,7 +92,7 @@ def main():
         remplir_fenetre(blanc)
         act_time = time.time()
         clic = obtenir_position_curseur()
-        comportement_bouton(clic, souris_cliquee(), [bouton])
+        comportement_bouton(clic, souris_cliquee(), [bouton,bouton2,bouton3])
 
         (act_time,TUFA_last_refresh,delta_time,last_chronos_time,frames,frame_array,displayed_frame_array) = frame_handling(act_time,TUFA_last_refresh,delta_time,last_chronos_time,frames,frame_array,displayed_frame_array)
 

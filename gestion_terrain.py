@@ -1,4 +1,5 @@
 from graphics import *
+import utilitaire
 taille_cases = 50
 hauteur_fenetre = 600
 largeur_fenetre = 1000
@@ -12,18 +13,16 @@ joueur_b = {"nom":"joueur_b","vie":10,"position":(nb_ligne-1,nb_colone-1)}#-1 ca
 
 
 def importer_image(image_path):
-    image = Image.open(image_path)
-    return image
+    return Image.open(image_path)
 
 def dans_terain(coordoner):
     x,y = coordoner
-    if x < nb_ligne and y < nb_colone and x > 0 and y >0:
-        return True
-    else:
-        return False
+    return (x < nb_ligne and y < nb_colone and x > -1 and y > -1)
+
 
 def aditione_tuple(t1,t2):
-    return (t1[0] + t2[0], t1[1] + t2[1])
+    return utilitaire.addition_tuple(t1,t2)
+
 
 def str_ver_dictionaire(chaine):
     grille = {}
@@ -47,15 +46,15 @@ def init_terrain(fichier):
         contenu = f.read()
         terrain = str_ver_dictionaire(contenu)
         joueur_a["position"] = trouve_cordonet_joueur("joueur_a",terrain)
-        joueur_b["position"] = trouve_cordonet_joueur("joueur_b",terrain)       
+        joueur_b["position"] = trouve_cordonet_joueur("joueur_b",terrain)
         return terrain
-         
+
 def trouve_cordonet_joueur(nom_joueur,terrain):
     for cle, valeur in terrain.items():
        for cle2, valeur2 in valeur.items():
             if valeur2 == nom_joueur:
                 return cle
-    
+
 
 
 def affiche_terrain(terrain):
@@ -63,18 +62,19 @@ def affiche_terrain(terrain):
     for i in range(nb_ligne):
         for j in range(nb_colone):
             if terrain[i,j]["objet"] == "sol":
-                affiche_rectangle_plein(casse_vers_coordonee((i,j)),casse_vers_coordonee((i+1,j+1)),blanc)
+                modifie_taille_image("herbe.png", taille_cases, taille_cases)
+                affiche_image("herbe.png", casse_vers_coordonee((i,j)))
             elif terrain[i,j]["objet"] == "mur":
                 # Utiliser la texture de mur au lieu d'un carré noir
                 # Redimensionner l'image en conservant les proportions et en utilisant smoothscale
-                modifie_taille_image("mur.png", taille_cases, taille_cases, conserver_proportions=True, smooth=True)
+                modifie_taille_image("mur.png", taille_cases, taille_cases)
                 affiche_image("mur.png", casse_vers_coordonee((i,j)))
             if terrain[i,j]["joueur"] == "joueur_a":
-                affiche_rectangle_plein(casse_vers_coordonee((i,j)),casse_vers_coordonee((i+1,j+1)),bleu)            
+                affiche_rectangle_plein(casse_vers_coordonee((i,j)),casse_vers_coordonee((i+1,j+1)),bleu)
             elif terrain[i,j]["joueur"] == "joueur_b":
                 affiche_rectangle_plein(casse_vers_coordonee((i,j)),casse_vers_coordonee((i+1,j+1)),rouge)
             if terrain[i,j]["missile"] == "missile_a":
-                affiche_rectangle_plein(casse_vers_coordonee((i,j)),casse_vers_coordonee((i+1,j+1)),vert)            
+                affiche_rectangle_plein(casse_vers_coordonee((i,j)),casse_vers_coordonee((i+1,j+1)),vert)
             elif terrain[i,j]["missile"] == "missile_b":
                 affiche_rectangle_plein(casse_vers_coordonee((i,j)),casse_vers_coordonee((i+1,j+1)),violet)
 
@@ -107,7 +107,7 @@ def main_a():
 def edyte_terain():
     init_fenetre(largeur_fenetre, hauteur_fenetre, "Tank La Revanche")
     remplir_fenetre(blanc)
-    affiche_auto_off
+    affiche_auto_off()
     fichier = open("terain.txt","w")
     for i in range(nb_ligne):
         for j in range(nb_colone):
@@ -116,7 +116,7 @@ def edyte_terain():
     fichier.close()
     terrain = init_terrain("terain.txt")
     affiche_terrain(terrain)
-    affiche_tout
+    affiche_tout()
     while pas_echap():
         clic = wait_clic()
         x,y = clic
@@ -146,7 +146,7 @@ def edyte_terain():
                 terrain[clic_i,clic_j]["joueur"] = "joueur_b"
 
             affiche_terrain(terrain)
-            affiche_tout
+            affiche_tout()
 
 if __name__ == "__main__":
     edyte_terain()

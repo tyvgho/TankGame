@@ -17,7 +17,7 @@ TANK_SIZE = 30
 TANK_VITESSE_ROTATION = 135 # en degrée par seconde
 TAILLE_PETIT_CANON = pi/8
 TAILLE_GRAND_CANON = pi/6
-can_fier = True
+TANK_RECULE = 10
 
 
 COSMETIC_TANK = {
@@ -192,6 +192,7 @@ def tire_misile(joueur_a,joueur_b,misiles,terain):
     for joueur in [joueur_a,joueur_b]:
         if touche_enfoncee(joueur["touche"]["tirer"]) and joueur["can_fier"]:
             misiles.append({"direction": joueur["rotation"], "joueur": "A", "coord": joueur["bout_du_canon"]})
+            joueur["vitesse"] -= TANK_RECULE
             joueur["can_fier"] = False
         elif not touche_enfoncee(joueur_a["touche"]["tirer"]):
             joueur["can_fier"] = True
@@ -228,11 +229,14 @@ def deplace_misile(misiles,delta_time,terain,TANK_1 ,TANK_2):
 
 
 def draw_misiles(misiles):
-    x,y = misiles["coord"]
+    taille_missile = 20
+    x,y = addition_tuple(misiles["coord"],(-taille_missile/2,-taille_missile/2))
     # Redimensionner l'image du missile en conservant les proportions
     # Taille appropriée pour un missile (ajustez selon vos besoins)
-    taille_missile = 20
+    
     modifie_taille_image("missile.png", taille_missile, taille_missile, conserver_proportions=True, smooth=True)
+    modifie_transparence("missile.png",(0,255,0),alpha=100)
+    
     affiche_image("missile.png",(x,y))
 
 def collision_missile_tank(missile,TANK_1 ,TANK_2,missiles_a_supprimer):
@@ -296,13 +300,13 @@ def main():
         "vitesse" : 0,
         "acceleration" : TANK_ACCELERATION,
         "touche" : {
-            "gauche" : "K_KP4",
-            "droite" : "K_KP6",
-            "haut" : "K_KP8",
-            "bas" : "K_KP2",
+            "gauche" : "K_LEFT",
+            "droite" : "K_RIGHT",
+            "haut" : "K_UP",
+            "bas" : "K_DOWN",
             "rotation_gauche" : "K_KP7",
             "rotation_droite" : "K_KP9",
-            "tirer" : "K_KP5"
+            "tirer" : "K_RSHIFT"
         }
     }
 
@@ -343,6 +347,46 @@ def main():
 
             (act_time,TUFA_last_refresh,delta_time,last_chronos_time,frames,frame_array,displayed_frame_array) = frame_handling(act_time,TUFA_last_refresh,delta_time,last_chronos_time,frames,frame_array,displayed_frame_array)
             #clock.tick(FPS)
+        else :
+            wait_clic()
+            terrain = init_terrain("terain.txt")
+            misiles = []
+            Jeu_fini = False
+            TANK_1 : Tank = {
+                "coord" : [casse_vers_coordonee(trouve_cordonet_joueur("joueur_b",terrain))[0],casse_vers_coordonee(trouve_cordonet_joueur("joueur_b",terrain))[1]],
+                "rotation" : 0.0,
+                "couleur" : rouge,
+                "vie" : 3,
+                "vitesse" : 0,
+                "acceleration" : TANK_ACCELERATION,
+                "touche" : {
+                    "gauche" : "K_a",
+                    "droite" : "K_d",
+                    "haut" : "K_w",
+                    "bas" : "K_s",
+                    "rotation_gauche" : "K_q",
+                    "rotation_droite" : "K_e",
+                    "tirer" : "K_SPACE"
+                }
+            }
+
+            TANK_2 : Tank = {
+                "coord" : [casse_vers_coordonee(trouve_cordonet_joueur("joueur_a",terrain))[0],casse_vers_coordonee(trouve_cordonet_joueur("joueur_a",terrain))[1]],
+                "rotation" : 0.0,
+                "couleur" : bleu,
+                "vie" : 3,
+                "vitesse" : 0,
+                "acceleration" : TANK_ACCELERATION,
+                "touche" : {
+                    "gauche" : "K_LEFT",
+                    "droite" : "K_RIGHT",
+                    "haut" : "K_UP",
+                    "bas" : "K_DOWN",
+                    "rotation_gauche" : "K_KP7",
+                    "rotation_droite" : "K_KP9",
+                    "tirer" : "K_RSHIFT"
+                }
+            }
 
 
 if __name__ == "__main__":
