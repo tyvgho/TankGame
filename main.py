@@ -63,6 +63,7 @@ def draw_tank(tank_q : Tank):
     milieu_du_tank = mid_x, mid_y
     affiche_cercle(milieu_du_tank, int(TANK_SIZE*0.4), noir, 3)
 
+    # Canon
     affiche_triangle_plein(
         (
             mid_x + (TANK_SIZE*COSMETIC_TANK["TAILLE_PETIT_CANON"])*math.cos(rotation + COSMETIC_TANK["RAYON_PETIT_CANON"]),
@@ -167,8 +168,7 @@ def step(tank1 : Tank, delta_time, terrain):
     if not collision:
         tank1["coord"] = [next_x,next_y]
     else:
-        #delta_x = next_x - tank1["coord"][0]
-        #delta_y = next_y - tank1["coord"][1]        
+        # Parti du code pour slide
         
         if not detection_collision(next_x, tank1["coord"][1], terrain):
             tank1["coord"][0] = next_x
@@ -200,7 +200,7 @@ def tire_misile(joueur_a,joueur_b,misiles,terain):
         elif not touche_enfoncee(joueur["touche"]["tirer"]):
             joueur["can_fier"] = True
 
-# Alexandre (8)
+# Quentin (8)
 def deplace_misile(misiles,delta_time,terain,TANK_1 ,TANK_2):
     vitesse_missile = 400  # pixels/sec, choisis ce que tu veux
 
@@ -222,11 +222,11 @@ def deplace_misile(misiles,delta_time,terain,TANK_1 ,TANK_2):
             continue
 
 
-        # Pas de collision → déplacer
+        # Pas de collision alors on peut déplacer
         missile["coord"] = (next_x, next_y)
         draw_misiles(missile)
 
-    # Supprimer les missiles qui ont touché un mur ou sont sortis
+    # Supprimer les missiles qui ont touché un mur ou sont sortis | Pour éviter les probleme
     for missile in missiles_a_supprimer:
         misiles.remove(missile)
 
@@ -249,13 +249,13 @@ def collision_missile_tank(missile,TANK_1 ,TANK_2,missiles_a_supprimer):
 
     # Zone du tank 1
     x1, y1 = TANK_1["coord"]
-    if x1 <= x_missile <= x1 + TANK_SIZE and y1 <= y_missile <= y1 + TANK_SIZE:
+    if x1 <= x_missile and x_missile <= x1 + TANK_SIZE and y1 <= y_missile and y_missile <= (y1 + TANK_SIZE):
         missiles_a_supprimer.append(missile)
         TANK_1["vie"] -= 1
 
     # Zone du tank 2
     x2, y2 = TANK_2["coord"]
-    if x2 <= x_missile <= x2 + TANK_SIZE and y2 <= y_missile <= y2 + TANK_SIZE:
+    if x2 <= x_missile and x_missile <= x2 + TANK_SIZE and y2 <= y_missile and y_missile <= y2 + TANK_SIZE:
         missiles_a_supprimer.append(missile)
         TANK_2["vie"] -= 1
 
