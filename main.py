@@ -13,7 +13,7 @@ TIME_UNTIL_FPS_AVERAGE = 1.0
 TANK_MAX_SPEED = 5
 TANK_ACCELERATION = 20.0
 TANK_FRICTION = 10.0
-TANK_SIZE = 30
+TANK_SIZE = 50
 TANK_VITESSE_ROTATION = 135 # en degrée par seconde
 TAILLE_PETIT_CANON = pi/8
 TAILLE_GRAND_CANON = pi/6
@@ -22,21 +22,21 @@ TANK_RECULE = 10
 
 COSMETIC_TANK = {
     "TAILLE_TANK" : 50,
-    "RAYON_PETIT_CANON" : pi/12,
-    "RAYON_GRAND_CANON" : pi/24,
+    "RAYON_PETIT_CANON" : pi/12, # en radian
+    "RAYON_GRAND_CANON" : pi/24, # en radian
     "TAILLE_PETIT_CANON" : 0.38,
     "TAILLE_GRAND_CANON" : 1.0,
     "TAILLE_CERCLE" : 0.3 # en pourcentage
 }
 
 
-fait_chier = 0.0
 
 chrono_loop = "chrono_loop"
 
 Coord = List[float]
 Tank = Dict
     
+# Mathis (5)
 def draw_tank(tank_q : Tank):
     tank = tank_q["coord"]
     rotation = tank_q["rotation"]
@@ -100,9 +100,11 @@ def draw_tank(tank_q : Tank):
     affiche_ligne(rotated_points[2],rotated_points[3],noir)
     affiche_ligne(rotated_points[3],rotated_points[0],noir)
 
+# Alexandre (4)
 def obtenir_centre_tank(tank : Tank):
     return addition_tuple(tank["coord"],(TANK_SIZE/2,TANK_SIZE/2))
 
+# Quentin (2)
 def detection_collision(next_x, next_y, terrain):
     """
     Détecte si un tank à la position (next_x, next_y) entre en collision avec un obstacle.
@@ -131,6 +133,7 @@ def detection_collision(next_x, next_y, terrain):
 
     return False
 
+# Mathis (1)
 def step(tank1 : Tank, delta_time, terrain):
     # if cercle[0] > 480:
     #     cercle[0] = cercle[0] % 480
@@ -164,23 +167,23 @@ def step(tank1 : Tank, delta_time, terrain):
     if not collision:
         tank1["coord"] = [next_x,next_y]
     else:
-        delta_x = next_x - tank1["coord"][0]
-        delta_y = next_y - tank1["coord"][1]        
+        #delta_x = next_x - tank1["coord"][0]
+        #delta_y = next_y - tank1["coord"][1]        
         
-        if not detection_collision(tank1["coord"][0] + delta_x, tank1["coord"][1], terrain):
-            tank1["coord"][0] += delta_x
-        elif not detection_collision(tank1["coord"][0], tank1["coord"][1] + delta_y, terrain):
-            tank1["coord"][1] += delta_y
+        if not detection_collision(next_x, tank1["coord"][1], terrain):
+            tank1["coord"][0] = next_x
+        elif not detection_collision(tank1["coord"][0], next_y, terrain):
+            tank1["coord"][1] = next_y
             
 
     tank1["rotation"] += (int(touches["gauche"]) - int(touches["droite"])) * (delta_time * (2*pi/360*TANK_VITESSE_ROTATION))
 
-def tire_misile(joueur_a,joueur_b,misiles,terain):
-    global can_fier
+# Mathis (6)
+def tire_misile(joueur_a,joueur_b,misiles,terain): 
 
     distance_spawn_balle = TANK_SIZE + 10
 
-    delta_a = (distance_spawn_balle*cos(joueur_a["rotation"]),distance_spawn_balle*sin(joueur_b["rotation"]))
+    delta_a = (distance_spawn_balle*cos(joueur_a["rotation"]),distance_spawn_balle*sin(joueur_a["rotation"]))
     delta_b = (distance_spawn_balle*cos(joueur_b["rotation"]),distance_spawn_balle*sin(joueur_b["rotation"]))
 
     point_a = addition_tuple(obtenir_centre_tank(joueur_a),delta_a)
@@ -194,10 +197,10 @@ def tire_misile(joueur_a,joueur_b,misiles,terain):
             misiles.append({"direction": joueur["rotation"], "joueur": "A", "coord": joueur["bout_du_canon"]})
             joueur["vitesse"] -= TANK_RECULE
             joueur["can_fier"] = False
-        elif not touche_enfoncee(joueur_a["touche"]["tirer"]):
+        elif not touche_enfoncee(joueur["touche"]["tirer"]):
             joueur["can_fier"] = True
 
-
+# Alexandre (8)
 def deplace_misile(misiles,delta_time,terain,TANK_1 ,TANK_2):
     vitesse_missile = 400  # pixels/sec, choisis ce que tu veux
 
@@ -227,7 +230,7 @@ def deplace_misile(misiles,delta_time,terain,TANK_1 ,TANK_2):
     for missile in missiles_a_supprimer:
         misiles.remove(missile)
 
-
+# Quentin (7)
 def draw_misiles(misiles):
     taille_missile = 20
     x,y = addition_tuple(misiles["coord"],(-taille_missile/2,-taille_missile/2))
@@ -237,18 +240,18 @@ def draw_misiles(misiles):
     modifie_taille_image("missile.png", taille_missile, taille_missile, conserver_proportions=True, smooth=True)
     modifie_transparence("missile.png",(0,255,0),alpha=100)
     
+    #affiche_cercle_plein((x,y),taille_missile,rouge)
     affiche_image("missile.png",(x,y))
 
+# Quentin (9)
 def collision_missile_tank(missile,TANK_1 ,TANK_2,missiles_a_supprimer):
     x_missile, y_missile = missile["coord"]
 
-# Zone du tank 1
+    # Zone du tank 1
     x1, y1 = TANK_1["coord"]
     if x1 <= x_missile <= x1 + TANK_SIZE and y1 <= y_missile <= y1 + TANK_SIZE:
         missiles_a_supprimer.append(missile)
         TANK_1["vie"] -= 1
-
-
 
     # Zone du tank 2
     x2, y2 = TANK_2["coord"]
@@ -256,6 +259,7 @@ def collision_missile_tank(missile,TANK_1 ,TANK_2,missiles_a_supprimer):
         missiles_a_supprimer.append(missile)
         TANK_2["vie"] -= 1
 
+# Alexandre (10)
 def jeu_fini(TANK_1 ,TANK_2):
     if TANK_1["vie"] == 0:
         remplir_fenetre(blanc)
@@ -268,7 +272,7 @@ def jeu_fini(TANK_1 ,TANK_2):
         affiche_tout()
         return True
 
-
+# Alexandre (0)
 def main():
     init_fenetre(*TAILLE_ECRAN,"Tank la revanche.")
     terrain = init_terrain("terain.txt")
@@ -306,7 +310,7 @@ def main():
             "bas" : "K_DOWN",
             "rotation_gauche" : "K_KP7",
             "rotation_droite" : "K_KP9",
-            "tirer" : "K_RSHIFT"
+            "tirer" : "K_l"
         }
     }
 
@@ -333,6 +337,9 @@ def main():
             step(TANK_2,delta_time,terrain)
             draw_tank(TANK_1)
             draw_tank(TANK_2)
+
+            #for tank in [TANK_1,TANK_2]:
+                #affiche_cercle_plein(tank.get("bout_du_canon",(0,0)),30,vert)
             #tire des misile
             tire_misile(TANK_1,TANK_2,misiles,terrain)
             deplace_misile(misiles,delta_time,terrain,TANK_1 ,TANK_2)
@@ -347,11 +354,10 @@ def main():
 
             (act_time,TUFA_last_refresh,delta_time,last_chronos_time,frames,frame_array,displayed_frame_array) = frame_handling(act_time,TUFA_last_refresh,delta_time,last_chronos_time,frames,frame_array,displayed_frame_array)
             #clock.tick(FPS)
-        else :
+        else :# Si le jeu est fini, attendre un clic avant de recommencer
             wait_clic()
             terrain = init_terrain("terain.txt")
             misiles = []
-            Jeu_fini = False
             TANK_1 : Tank = {
                 "coord" : [casse_vers_coordonee(trouve_cordonet_joueur("joueur_b",terrain))[0],casse_vers_coordonee(trouve_cordonet_joueur("joueur_b",terrain))[1]],
                 "rotation" : 0.0,

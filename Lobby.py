@@ -62,7 +62,7 @@ def main():
     bouton2["texte"] = "Quitter"
     bouton2["couleur"] = (255,0,0)
     bouton2["couleur_selectionnee"] = (0,255,0)
-    bouton2["texte_selectionne"] = "Jouer !"
+    bouton2["texte_selectionne"] = "Quitter"
     
     bouton2["fonction"] = lambda: exit()
 
